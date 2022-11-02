@@ -1,0 +1,7 @@
+{
+  "name": "Yuca",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
