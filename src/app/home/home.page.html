@@ -1,8 +1,15 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <div class="d-flex justify-content-between">
+      <ion-title>
+        Entrenapp
+      </ion-title>
+      <ion-button class="logoutButton" (click)="logout()">
+        <span style="color:white">
+          LOGOUT
+        </span>
+      </ion-button>
+    </div>
   </ion-toolbar>
 </ion-header>
 
@@ -12,22 +19,25 @@
       <ion-title size="large">Blank</ion-title>
     </ion-toolbar>
   </ion-header>
-  <ion-button class="button-ready" expand="full" (click)="firstButtonForTrained()">Añadir entrenamiento</ion-button>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-  </div>
+  <ion-button class="button-ready" expand="full" (click)="firstButtonForTrained()">ADD TRAINING</ion-button>
 
-  <ion-card color="light">
+  <ion-card color="light" *ngFor="let data of dataFinal | slice:0:7">
     <ion-card-header>
-      <ion-card-title>{{dayTrained.dayTrained}}</ion-card-title>
-      <ion-card-subtitle>{{dayTrained.musclesTrained}}</ion-card-subtitle>
+      <div>
+        <ion-card-title>{{data.dayOfWeekTrained}}. {{data.dayTrained}}</ion-card-title>
+        <ion-card-subtitle class="musclesWorkedBlocked">{{data.musclesTrained.join(', ')}}</ion-card-subtitle>
+        <p class="intenseBlock">{{data.Intensity}}</p>
+      </div>
     </ion-card-header>
-  
-    <ion-card-content>
-      Card Content
-    </ion-card-content>
+
+    <div class="button justify-content-center">
+        <ion-button class="delete" expand="block" (click)="delete(data.id)">delete</ion-button>
+        <ion-button class="update" expand="block" (click)="click(data)">edit</ion-button>
+    </div>
   </ion-card>
 
-
+  <ion-button class="loadMoreTrainingsButton" (click)="loadMoreTrainings()">Load more</ion-button>
+  <br>
+  <app-stats></app-stats>
 </ion-content>

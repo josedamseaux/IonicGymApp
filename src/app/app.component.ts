@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Platform } from '@ionic/angular';
+import * as firebase from 'firebase/app';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +9,18 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    private platform: Platform,
+  ) {
+    this.initializeApp();
+  }
+
+  initializeApp() {
+    this.platform.ready().then(() => {
+      // INITIALIZE FIREBASE
+      firebase.initializeApp(environment.firebase);
+
+      
+    });
+  }
 }

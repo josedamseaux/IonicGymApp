@@ -3,17 +3,22 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
+import { StatsComponent } from '../stats/stats.component';
+import { NgChartsModule } from 'ng2-charts';
+
 
 import { HomePageRoutingModule } from './home-routing.module';
+import { ChartsComponent } from "../charts/charts.component";
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    HomePageRoutingModule
-  ],
-  declarations: [HomePage]
+    declarations: [HomePage, StatsComponent, ChartsComponent],
+    imports: [
+        NgChartsModule,
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        HomePageRoutingModule,
+    ]
 })
 export class HomePageModule {}
