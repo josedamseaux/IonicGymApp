@@ -22,7 +22,7 @@ export class HomePage implements OnInit  {
   constructor(private alertController: AlertController,
     private authService: AuthService,
     private router: Router,
-    private dataService: DataService,
+    private dataService: DataService,private auth: Auth
   ) { }
 
   dataFinal: any[];
@@ -36,7 +36,7 @@ export class HomePage implements OnInit  {
   
 
   ngOnInit() {
-
+    console.log(this.auth.currentUser.uid)
     this.dataService.getAll().subscribe(resp => {
       console.log(resp)
       this.dataFinal = resp

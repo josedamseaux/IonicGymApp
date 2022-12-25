@@ -12,15 +12,15 @@ export class EmptyComponent {}
 
 const routes: Routes = [
 
-  // {
-  //   path: '',
-  //   loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule),
-  //   ...canActivate(redirectLoggedInToHome)
-  // },
+  {
+    path: '',
+    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule),
+    ...canActivate(redirectLoggedInToHome)
+  },
   {
     path: '',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule),
-    // ...canActivate(redirectUnauthorizedToLogin)
+    ...canActivate(redirectUnauthorizedToLogin)
     
   },
   // {

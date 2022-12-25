@@ -23,13 +23,13 @@ export class DataService {
   querySortedByNewest;
   
   constructor(private readonly firestore: Firestore, private auth: Auth) {
-    this.dataCollection = collection(this.firestore, 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1')
+    this.dataCollection = collection(this.firestore, this.auth.currentUser.uid)
     this.querySortedByNewest = query(this.dataCollection, orderBy("createdAt", "desc"));
   }
   
-  // uid = this.auth.currentUser.uid;
+  uid = this.auth.currentUser.uid;
 
-  uid = 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1';
+  // uid = 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1';
 
 
   
