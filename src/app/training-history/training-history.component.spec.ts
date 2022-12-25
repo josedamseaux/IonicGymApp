@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ChartsComponent } from './charts.component';
+import { TrainingHistoryComponent } from './training-history.component';
 
-describe('ChartsComponent', () => {
-  let component: ChartsComponent;
-  let fixture: ComponentFixture<ChartsComponent>;
+describe('TrainingHistoryComponent', () => {
+  let component: TrainingHistoryComponent;
+  let fixture: ComponentFixture<TrainingHistoryComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ChartsComponent ],
+      declarations: [ TrainingHistoryComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ChartsComponent);
+    fixture = TestBed.createComponent(TrainingHistoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

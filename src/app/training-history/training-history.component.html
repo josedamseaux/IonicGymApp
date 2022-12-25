@@ -4,7 +4,7 @@
       <ion-title>
         Entrenapp
       </ion-title>
-      <ion-button class="logoutButton" (click)="logout()">
+      <ion-button class="logoutButton" >
         <span style="color:white">
           LOGOUT
         </span>
@@ -20,26 +20,26 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-button class="button-ready" expand="full" (click)="firstButtonForTrained()">ADD TRAINING</ion-button>
+  <ion-button class="button-ready" expand="full" (click)="backToMain()">BACK TO MAIN</ion-button>
 
-  <ion-card color="light" *ngFor="let data of dataFinal | slice:0:7">
+  <div>
+    TRAINING HISTORY:
+  </div>
+
+
+  <ion-card color="light" (click)="ShowYear()">
     <ion-card-header>
       <div>
-        <ion-card-title>{{data.dayOfWeekTrained}}. {{data.dayTrained}}</ion-card-title>
-        <ion-card-subtitle class="musclesWorkedBlocked">{{data.musclesTrained.join(', ')}}</ion-card-subtitle>
-        <p class="intenseBlock">{{data.Intensity}}</p>
+        <ion-card-title>{{yearTrained}}</ion-card-title>
+        <ion-card-subtitle class="musclesWorkedBlocked"></ion-card-subtitle>
+  
       </div>
     </ion-card-header>
 
-    <div class="button justify-content-center">
-      <ion-button class="update" expand="block" (click)="click(data)">edit</ion-button>
-      <ion-button class="delete" expand="block" (click)="delete(data.id)">delete</ion-button>
-    </div>
   </ion-card>
+  <div *ngIf="clicked">
 
-  <ion-button *ngIf="loadMore == false" class="loadMoreTrainingsButton" (click)="loadMoreTrainings()">Load more</ion-button>
-  <div *ngIf="loadMore == true">
-    <ion-card color="light" *ngFor="let data of dataFinal | slice:7:14">
+    <ion-card color="light" *ngFor="let data of dataFor2022">
       <ion-card-header>
         <div>
           <ion-card-title>{{data.dayOfWeekTrained}}. {{data.dayTrained}}</ion-card-title>
@@ -53,10 +53,8 @@
         <ion-button class="delete" expand="block" (click)="delete(data.id)">delete</ion-button>
       </div>
     </ion-card>
-    <ion-button *ngIf="loadMore == true" class="loadMoreTrainingsButton" (click)="loadAllTrainings()">Load all</ion-button>
-
   </div>
+
   <br>
-  <app-stats></app-stats>
 
 </ion-content>

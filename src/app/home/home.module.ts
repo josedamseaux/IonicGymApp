@@ -5,20 +5,20 @@ import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 import { StatsComponent } from '../stats/stats.component';
 import { NgChartsModule } from 'ng2-charts';
+import { TrainingHistoryComponent } from '../training-history/training-history.component';
 
 
 import { HomePageRoutingModule } from './home-routing.module';
-import { ChartsComponent } from "../charts/charts.component";
 
 
 @NgModule({
-    declarations: [HomePage, StatsComponent, ChartsComponent],
     imports: [
         NgChartsModule,
         CommonModule,
         FormsModule,
         IonicModule,
-        HomePageRoutingModule,
-    ]
+        HomePageRoutingModule
+    ],
+    declarations: [HomePage, StatsComponent, TrainingHistoryComponent],
 })
 export class HomePageModule {}

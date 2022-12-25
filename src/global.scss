@@ -36,7 +36,7 @@
     -webkit-appearance: none;
     appearance: none;
     /* For iOS < 15 to remove gradient background */
-    background-color: #41B883;
+    background-color: #3fa39b;
     /* Not removed via appearance */
     margin: 0;
     border: transparent;
@@ -54,4 +54,10 @@
     width: 100px;
     transition-duration: 0.3s;
     transform-origin: bottom right;
+}
+
+
+body {
+  background-color: black;
+  --ion-background-color: black;
 }

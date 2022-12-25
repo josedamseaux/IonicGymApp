@@ -27,6 +27,7 @@
     "@capacitor/status-bar": "4.0.1",
     "@ionic/angular": "^6.1.9",
     "chart.js": "^4.0.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^2.29.3",
     "ionicons": "^6.0.3",
     "ng2-charts": "^4.0.2",

@@ -5,13 +5,13 @@
   <p *ngIf="trainedToday">{{messageForLastDayTrained}} </p>
 
   <div>
-    <h1 class="titlesStats"><i>Week stats</i></h1> From monday {{firstDayOfWeek}}th to the {{lastDayOfWeek}}th,
-    you have trained {{weekTrained.length}} times
+    <h1 class="titlesStats"><i>Week stats</i></h1>
   </div>
 
+  <!-- Little calendar with days of the week trained -->
   <div class="boxesForDaysAWeek d-flex justify-content-between">
     <div class="boxed d-flex justify-content-between" *ngFor="let weekit of week; let i = index;">
-      <div class="boxxed text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#489572' : '#3c3c44'}">
+      <div class="boxxed text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#3fa39b' : '#3c3c44'}">
         {{weekit}}
       </div>
     </div>
@@ -19,13 +19,30 @@
 
   <div class="boxesForDaysAWeek d-flex justify-content-between">
     <div class="boxed d-flex justify-content-between" *ngFor="let weeker of currentWeek; let i = index;">
-      <div class="boxxed2 text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#489572' : '#3c3c44'}">
+      <div class="boxxed2 text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#3fa39b' : '#3c3c44'}">
         {{weeker}}
       </div>
     </div>
   </div>
+  <!--  -->
 
   <br>
+
+  <div>
+
+    <canvas baseChart class="chart"
+          [type]="doughnutChartType"
+          [datasets]="doughnutChartData" 
+          [labels]="pieChartLabels"
+          [options]="doughnutChartOptions"
+          [plugins]="pieChartPlugins2"
+         >
+    </canvas>
+
+  </div>
+
+  <br>
+
 
   <div class="monthStats">
     <h1 class="titlesStats"><i>Month stats</i></h1>
@@ -35,10 +52,22 @@
     <br><br>
     <div class="chart-wrapper">
       <canvas baseChart class="chart" [datasets]="lineChartDataForMonth" [labels]="lineChartLabelsForMonth"
-        [legend]="lineChartLegendForMonth" [options]="lineChartOptions">
+        [legend]="lineChartLegendForMonth" [options]="barChartOptions">
       </canvas>
     </div>
   </div>
+
+  <!-- <div>
+    <canvas baseChart class="chart"
+    [data]="intensityChartData"
+    [options]="lineChartOptions"
+    [type]="lineChartType"
+    [labels]="intensityChartLabels"
+    ></canvas>
+
+  </div> -->
+
+   
 
   <div class="yearStats">
     <h1 class="titlesStats"><i>Year stats</i></h1>
@@ -47,8 +76,11 @@
     <span>Last year you trained {{countOnLastYear.length}} times</span>
     <br><br>
     <div class="chart-wrapper">
-      <canvas baseChart class="chart" [datasets]="lineChartDataForYear" [labels]="lineChartLabelsForYear"
-        [legend]="lineChartLegendForYear" [options]="lineChartOptions">
+      <canvas baseChart class="chart" 
+      [datasets]="lineChartDataForYear" 
+      [labels]="lineChartLabelsForYear"
+      [legend]="lineChartLegendForYear" 
+      [options]="barChartOptions">
       </canvas>
     </div>
   </div>
