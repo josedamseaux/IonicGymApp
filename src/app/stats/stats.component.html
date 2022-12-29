@@ -17,16 +17,19 @@
     </div>
   </div>
 
-  <div class="boxesForDaysAWeek d-flex justify-content-between">
-    <div class="boxed d-flex justify-content-between" *ngFor="let weeker of currentWeek; let i = index;">
-      <div class="boxxed2 text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#3fa39b' : '#3c3c44'}">
-        {{weeker}}
+    <div class="boxesForDaysAWeek d-flex justify-content-between">
+      <div class="boxed d-flex justify-content-between" *ngFor="let weeker of currentWeek; let i = index;">
+        <div class="boxxed2 text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#3fa39b' : '#3c3c44'}">
+          {{weeker}}
+        </div>
       </div>
     </div>
-  </div>
-  <!--  -->
-
+  
   <br>
+
+
+
+
 
   <div>
 
@@ -57,17 +60,6 @@
     </div>
   </div>
 
-  <!-- <div>
-    <canvas baseChart class="chart"
-    [data]="intensityChartData"
-    [options]="lineChartOptions"
-    [type]="lineChartType"
-    [labels]="intensityChartLabels"
-    ></canvas>
-
-  </div> -->
-
-   
 
   <div class="yearStats">
     <h1 class="titlesStats"><i>Year stats</i></h1>

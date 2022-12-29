@@ -4,6 +4,7 @@ import { DataService } from '../services/data.service';
 import { format } from 'date-fns';
 import { ChartConfiguration, ChartDataset, ChartType } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-stats',
@@ -35,54 +36,38 @@ export class StatsComponent implements OnInit {
 
   // Intensity chart
 
-  public intensityChartData: ChartConfiguration['data'] = {
-    datasets: [
-      {
-        data: [ 12,12,12,1,6,],
-        label: 'Series A',
-        backgroundColor: 'rgba(148,159,177,0.2)',
-        borderColor: 'rgba(148,159,177,1)',
-        pointBackgroundColor: 'rgba(148,159,177,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-        fill: 'origin',
-      }
-    ],
-  };
+  // public intensityChartData: ChartConfiguration['data'] = {
+  //   datasets: [
+  //     {
+  //       data: [ 12,12,12,1,6,],
+  //       label: 'Series A',
+  //       backgroundColor: 'rgba(148,159,177,0.2)',
+  //       borderColor: 'rgba(148,159,177,1)',
+  //       pointBackgroundColor: 'rgba(148,159,177,1)',
+  //       pointBorderColor: '#fff',
+  //       pointHoverBackgroundColor: '#fff',
+  //       pointHoverBorderColor: 'rgba(148,159,177,0.8)',
+  //       fill: 'origin',
+  //     }
+  //   ],
+  // };
 
-  intensityChartLabels= []
+  // intensityChartLabels= []
 
-  public lineChartOptions: ChartConfiguration['options'] = {
-    elements: {
-      line: {
-        tension: 0.5
-      }
-    },
-    // scales: {
-    //   // We use this empty structure as a placeholder for dynamic theming.
-    //   y:
-    //     {
-    //       position: 'left',
-    //     },
-    //   y1: {
-    //     position: 'right',
-    //     grid: {
-    //       color: 'rgba(255,0,0,0.3)',
-    //     },
-    //     ticks: {
-    //       color: 'red'
-    //     }
-    //   }
-    // },
+  // public lineChartOptions: ChartConfiguration['options'] = {
+  //   elements: {
+  //     line: {
+  //       tension: 0.5
+  //     }
+  //   },
 
-    plugins: {
-      legend: { display: false },
-    
-    }
-  };
+  //   plugins: {
+  //     legend: { display: false },
 
-  public lineChartType: ChartType = 'line';
+  //   }
+  // };
+
+  // public lineChartType: ChartType = 'line';
 
   // 
 
@@ -90,7 +75,7 @@ export class StatsComponent implements OnInit {
   // Weeklychart doughnut
 
   public doughnutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
-    animation:{animateScale:true},
+    animation: { animateScale: true },
     cutout: 125,
     plugins: {
       datalabels: {
@@ -99,21 +84,22 @@ export class StatsComponent implements OnInit {
         formatter: (val, ctx) => {
           // Grab the label for this value
           const label = ctx.chart.data.labels[ctx.dataIndex];
-          const formattedVal = val;
           // Put them together
           return `${label}`;
         }
       },
       legend: {
-        display: false, 
+        display: false,
       },
-      
+
     }
   }
 
   public pieChartLabels: any = [];
-  public doughnutChartData: ChartDataset[] = [{ data: [], backgroundColor: ["#62BEB6", "#0B9A8D", "#077368", "#034D44", "#002B24"]
-  ,  borderColor: 'rgb(60, 60, 68)', label: 'Times trained this week'}];
+  public doughnutChartData: ChartDataset[] = [{
+    data: [], backgroundColor: ["#62BEB6", "#0B9A8D", "#077368", "#034D44", "#002B24"]
+    , borderColor: 'rgb(60, 60, 68)', label: 'Times trained this week'
+  }];
   public doughnutChartType: ChartType = 'doughnut';
   public pieChartPlugins2 = [ChartDataLabels];
 
@@ -146,18 +132,23 @@ export class StatsComponent implements OnInit {
 
   constructor(private dataService: DataService) { }
 
+  subscription: Subscription
+
+
   ngOnInit() {
 
-    this.dataService.getAll().subscribe(resp => {
-      this.getStatsWeekTrained()
+    this.subscription = this.dataService.getAll().subscribe(resp => {
       this.getStatsYearTrained()
       this.getStatsMonthTrained()
-      this.getMonth()
-      this.getCurrentWeek()
       this.lastTimeTrained()
       this.getPieChartData()
-      this.getIntensityChart()
+      this.getStatsWeekTrained()
+      // this.getIntensityChart()
     })
+    this.getMonth()
+    this.getCurrentWeek()
+
+
 
 
   }
@@ -609,6 +600,7 @@ export class StatsComponent implements OnInit {
 
   getStatsWeekTrained() {
 
+
     let newrasrasrArr = []
     let month = parseInt(format(new Date(), 'dd.MM.yyyy').substring(format(new Date(), 'dd.MM.yyyy').indexOf(".") + 1).slice(0, -5))
 
@@ -616,38 +608,41 @@ export class StatsComponent implements OnInit {
     this.dataService.getAll().subscribe(element => {
       // we cextract the property DayTrained and iterate over it
       element.map(a => a.dayTrained).forEach(resp => {
+        // console.log(resp)
         let varForMonth = parseInt(resp.substring(resp.indexOf(".") + 1).slice(0, -5))
+        // console.log(varForMonth)
+
+        // console.log(month)
         // If to see if days (10, 11, 12, etc...) are for this month (you can getg multiple numbers from others months)
-        if(varForMonth == month){
+        if (varForMonth == month) {
           // we convert every day to Int
           let respToNumber = parseInt(resp.substring(0, resp.length - 8).slice(-2))
+          // console.log(respToNumber)
+
           // we push the results to array ( 5, 6, 7, etc)
           newrasrasrArr.push(respToNumber)
           let newArrayWithDaysTrained = []
           // we iterate through the current week
           this.currentWeek.forEach(resp => {
-            // we iterate aswell through the array contaiting days trained
+
             newrasrasrArr.forEach(resp3 => {
+              console.log(resp3)
+
               // we compare items in arrays to determine if days trained match current week
               // if they match, we push those matches into new array
               if (resp === resp3) {
                 newArrayWithDaysTrained.push(resp)
+
+                newArrayWithDaysTrained.forEach(f => {
+                  this.indexs.push(this.currentWeek.findIndex(day => day == f))
+
+                })
               }
             })
           })
-          this.weekTrained = newArrayWithDaysTrained
-          // limpiar acorde al mes
-          this.weekTrained.forEach(resp => {
-          let dataTrained = resp
-          this.indexs.push(this.currentWeek.findIndex(day => day == dataTrained))
-          })
         }
-
-
-
       })
     })
-
 
   }
 
@@ -656,36 +651,39 @@ export class StatsComponent implements OnInit {
     let musclesTrained = []
     let thisMonth = parseInt(format(new Date(), 'dd.MM.yyyy').substring(format(new Date(), 'dd.MM.yyyy').indexOf(".") + 1).slice(0, -5))
     // we get the days trained in history
+
     this.dataService.getAll().subscribe(element => {
       element.forEach(resp => {
+
         let varForMonth = parseInt(resp.dayTrained.substring(resp.dayTrained.indexOf(".") + 1).slice(0, -5))
         let varDay = parseInt(resp.dayTrained.substring(0, resp.dayTrained.indexOf(".")))
 
-         this.currentWeek.forEach(respper=>{
-           if(varDay == respper && varForMonth == thisMonth){
-            resp.musclesTrained.map(muscles=>{
+        this.currentWeek.forEach(respper => {
 
-            let muscless = muscles.charAt(0).toUpperCase() + muscles.slice(1)
-
-            musclesTrained.push(muscless)
+          if (varDay == respper && varForMonth === thisMonth) {
+            resp.musclesTrained.forEach(muscles => {
+              console.log(muscles)
+              let muscless = muscles.charAt(0).toUpperCase() + muscles.slice(1)
+              musclesTrained.push(muscless)
             })
 
             let count = {}
             for (let i = 0; i < musclesTrained.length; i++) {
               count[musclesTrained[i]] = (count[musclesTrained[i]] || 0) + 1;
             }
-      
-            let dataArrayForMusclesTrained:any = Object.values(count)
+
+            let dataArrayForMusclesTrained: any = Object.values(count)
 
             let uniqueCharsForLabel = [...new Set(musclesTrained)];
 
-            this.doughnutChartData.forEach(resp=>{
+            this.doughnutChartData.forEach(resp => {
               resp.data = dataArrayForMusclesTrained
             })
 
             this.pieChartLabels = uniqueCharsForLabel
-           }
-         })
+          }
+
+        })
       })
     })
 
@@ -837,50 +835,58 @@ export class StatsComponent implements OnInit {
         }
         currentWeek = newArr
       }
-
     }
-    this.currentWeek = currentWeek;
-    console.log(currentWeek)
-  }
 
-  getIntensityChart(){
-
-    let arrayForIntensity = [];
-    let arrayForIntensityMonthly = [];
-
-    this.dataService.getAll().subscribe(resp=>{
-      resp.forEach(element =>{
-        let varForMonth = parseInt(element.dayTrained.substring(element.dayTrained.indexOf(".") + 1).slice(0, -5))
-        arrayForIntensityMonthly.push(varForMonth)
-        arrayForIntensityMonthly = arrayForIntensityMonthly.sort(function (a, b) { return a - b; });
-        let uniqueCharsForIntensityMonthly = [...new Set(arrayForIntensityMonthly)];
-
-        let arrayWithNamesForLabel = []
-        uniqueCharsForIntensityMonthly.forEach(element => {
-          if (element == 1) { element = "January", arrayWithNamesForLabel.push(element) }
-          if (element == 2) { element = "February", arrayWithNamesForLabel.push(element) }
-          if (element == 3) { element = "March", arrayWithNamesForLabel.push(element) }
-          if (element == 4) { element = "April", arrayWithNamesForLabel.push(element) }
-          if (element == 5) { element = "May", arrayWithNamesForLabel.push(element) }
-          if (element == 6) { element = "June", arrayWithNamesForLabel.push(element) }
-          if (element == 7) { element = "July", arrayWithNamesForLabel.push(element) }
-          if (element == 8) { element = "August", arrayWithNamesForLabel.push(element) }
-          if (element == 9) { element = "September", arrayWithNamesForLabel.push(element) }
-          if (element == 10) { element = "October", arrayWithNamesForLabel.push(element) }
-          if (element == 11) { element = "November", arrayWithNamesForLabel.push(element) }
-          if (element == 12) { element = "December", arrayWithNamesForLabel.push(element) }
-        })
-        console.log(arrayWithNamesForLabel)
-        this.intensityChartData.labels = arrayWithNamesForLabel
-
-
-        arrayForIntensity.push(element.Intensity)
-        // element.Intensity
-        console.log(arrayForIntensity)
+    currentWeek.forEach(r => {
+      r.forEach(f => {
+        this.currentWeek.push(f)
       })
     })
 
-    
+  }
+
+  // getIntensityChart(){
+
+  //   let arrayForIntensity = [];
+  //   let arrayForIntensityMonthly = [];
+
+  //   this.dataService.getAll().subscribe(resp=>{
+  //     resp.forEach(element =>{
+  //       let varForMonth = parseInt(element.dayTrained.substring(element.dayTrained.indexOf(".") + 1).slice(0, -5))
+  //       arrayForIntensityMonthly.push(varForMonth)
+  //       arrayForIntensityMonthly = arrayForIntensityMonthly.sort(function (a, b) { return a - b; });
+  //       let uniqueCharsForIntensityMonthly = [...new Set(arrayForIntensityMonthly)];
+
+  //       let arrayWithNamesForLabel = []
+  //       uniqueCharsForIntensityMonthly.forEach(element => {
+  //         if (element == 1) { element = "January", arrayWithNamesForLabel.push(element) }
+  //         if (element == 2) { element = "February", arrayWithNamesForLabel.push(element) }
+  //         if (element == 3) { element = "March", arrayWithNamesForLabel.push(element) }
+  //         if (element == 4) { element = "April", arrayWithNamesForLabel.push(element) }
+  //         if (element == 5) { element = "May", arrayWithNamesForLabel.push(element) }
+  //         if (element == 6) { element = "June", arrayWithNamesForLabel.push(element) }
+  //         if (element == 7) { element = "July", arrayWithNamesForLabel.push(element) }
+  //         if (element == 8) { element = "August", arrayWithNamesForLabel.push(element) }
+  //         if (element == 9) { element = "September", arrayWithNamesForLabel.push(element) }
+  //         if (element == 10) { element = "October", arrayWithNamesForLabel.push(element) }
+  //         if (element == 11) { element = "November", arrayWithNamesForLabel.push(element) }
+  //         if (element == 12) { element = "December", arrayWithNamesForLabel.push(element) }
+  //       })
+  //       // console.log(arrayWithNamesForLabel)
+  //       this.intensityChartData.labels = arrayWithNamesForLabel
+
+
+  //       arrayForIntensity.push(element.Intensity)
+  //       // element.Intensity
+  //       // console.log(arrayForIntensity)
+  //     })
+  //   })
+
+
+  // }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
 

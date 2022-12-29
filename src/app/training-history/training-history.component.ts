@@ -3,9 +3,9 @@ import { collection, collectionData, doc, Firestore, orderBy, query, where } fro
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { format } from 'date-fns';
-import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { DataService } from '../services/data.service';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-training-history',
@@ -30,26 +30,26 @@ export class TrainingHistoryComponent implements OnInit {
 
   intensityTrained2 = '';
 
-
+  uid;
   constructor(private alertController: AlertController, private readonly firestore: Firestore,
-    private authService: AuthService,
+    private authService: AuthService, private Auth: Auth, private route: ActivatedRoute,
     private router: Router,
-    private dataService: DataService,) { }
+    private dataService: DataService,) {
+
+      this.uid = this.Auth.currentUser.uid;
+     }
 
 
-    uid = 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1';
   
+    // uid = 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1';
 
   ngOnInit() {
     this.dataService.getAll().subscribe(resp => {
-      console.log(resp)
-      // this.dataFinal = resp
+      this.getTrainingHistory()
+      
     })    
-    this.averChe().subscribe(resp=>{
-      console.log(resp)
-    })
-    this.getTrainingHistory()
-    
+
+    console.log(this.Auth.currentUser.uid)
   }
 
   async click(dataToEdit) {
@@ -174,7 +174,14 @@ export class TrainingHistoryComponent implements OnInit {
   }
 
   backToMain(){
-    this.router.navigate([''])
+    // this.router.navigate(['training-history'])
+  
+    this.router.navigate(['home']);
+    // window.history.back();
+
+
+   
+    // this.router.navigateByUrl('');
   }
 
   getTrainingHistory(){
@@ -230,13 +237,12 @@ export class TrainingHistoryComponent implements OnInit {
       this.clicked = !this.clicked
       console.log(this.clicked)
   }
-
-  averChe(){
-    
-    let dataCollection = collection(this.firestore, this.uid)
-    let querySortedByNewest = query (dataCollection, where("createdAt", "==", "2022"))
-    return collectionData(querySortedByNewest)as Observable<any>
+  
+  logout() {
+    this.authService.logout()
+    this.router.navigate(['login'])
   }
+
 
 
 }

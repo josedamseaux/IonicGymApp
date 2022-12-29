@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { format } from 'date-fns';
 import { AuthService } from '../services/auth.service';
-import { ActivationStart, Router, RouterOutlet } from '@angular/router';
+import { ActivationStart, Router, RouterOutlet, ActivatedRoute } from '@angular/router';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Firestore, FieldValue, serverTimestamp } from '@angular/fire/firestore';
 import { CollectionReference, DocumentData, collection } from '@firebase/firestore';
@@ -22,7 +22,7 @@ export class HomePage implements OnInit  {
   constructor(private alertController: AlertController,
     private authService: AuthService,
     private router: Router,
-    private dataService: DataService,private auth: Auth
+    private dataService: DataService,private auth: Auth,  private route: ActivatedRoute,
   ) { }
 
   dataFinal: any[];
@@ -33,15 +33,19 @@ export class HomePage implements OnInit  {
     musclesTrained: [],
     Intensity: ''
   }
-  
+  name;
 
   ngOnInit() {
-    console.log(this.auth.currentUser.uid)
+    // console.log(this.auth.currentUser.uid)
     this.dataService.getAll().subscribe(resp => {
       console.log(resp)
       this.dataFinal = resp
     })
 
+    // this.route.queryParams.subscribe(params => {
+    //   this.name = params['name'];
+    //   console.log(this.name)
+    // });
 
   }
 
@@ -308,12 +312,18 @@ export class HomePage implements OnInit  {
   }
 
   loadAllTrainings(){
+    this.loadMore = false;
     this.router.navigate(['training-history'])
   }
 
   logout() {
     this.authService.logout()
-    this.router.navigateByUrl('', { replaceUrl: true });
+    this.router.navigate(['login'])
+    // this.router.navigateByUrl('', { replaceUrl: true });
+  }
+
+  ngOnDestroy(){
+    
   }
 
 

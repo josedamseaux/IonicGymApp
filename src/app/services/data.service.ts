@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import {  CollectionReference,  DocumentData, addDoc,  collection,  deleteDoc,  doc,  updateDoc,} from '@firebase/firestore';
 import { Firestore, collectionData, docData, orderBy, query } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -17,17 +17,21 @@ export interface trainingDayData {
 })
 
 
-export class DataService {
+export class DataService   {
 
   private dataCollection: CollectionReference<DocumentData>;
   querySortedByNewest;
+  uid;
   
   constructor(private readonly firestore: Firestore, private auth: Auth) {
+    // this.dataCollection = collection(this.firestore, 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1')
     this.dataCollection = collection(this.firestore, this.auth.currentUser.uid)
+
     this.querySortedByNewest = query(this.dataCollection, orderBy("createdAt", "desc"));
+
+     this.uid = this.auth.currentUser.uid;
+
   }
-  
-  uid = this.auth.currentUser.uid;
 
   // uid = 'Bh89hEJFo4Ve4UobbTyuMBDbAQx1';
 

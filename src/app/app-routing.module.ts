@@ -5,30 +5,30 @@ import { redirectUnauthorizedTo, redirectLoggedInTo, canActivate } from '@angula
 import { HomePage } from './home/home.page';
 import { TrainingHistoryComponent } from './training-history/training-history.component';
 
-const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['']);
+const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
 const redirectLoggedInToHome = () => redirectLoggedInTo(['home']);
-
-export class EmptyComponent {}
 
 const routes: Routes = [
 
   {
-    path: '',
+    path: 'login',
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule),
     ...canActivate(redirectLoggedInToHome)
   },
   {
-    path: '',
+    path: 'home',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule),
     ...canActivate(redirectUnauthorizedToLogin)
     
   },
-  // {
-  //   path: '',
-  //   redirectTo: '/home', 
-  //   pathMatch: 'full'
-  // },
-  { path: 'training-history',  component: TrainingHistoryComponent },
+  {
+    path: '',
+    redirectTo: 'home', 
+    pathMatch: 'full',
+  },  
+  { path: 'training-history',  component: TrainingHistoryComponent, ...canActivate(redirectUnauthorizedToLogin) },
+
+
 ];
 
 @NgModule({

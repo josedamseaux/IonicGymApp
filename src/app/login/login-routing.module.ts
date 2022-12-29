@@ -8,10 +8,10 @@ const routes: Routes = [
     path: '',
     component: LoginComponent,
   },
-  {
-    path: 'home',
-    component: HomePage,
-  }
+  // {
+  //   path: 'home',
+  //   component: HomePage,
+  // }
 ];
 
 @NgModule({

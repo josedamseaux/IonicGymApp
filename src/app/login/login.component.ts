@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
-import { Auth } from '@angular/fire/auth';
-import { Firestore, collectionData, docData } from '@angular/fire/firestore';
 
 
 @Component({
@@ -45,11 +43,8 @@ export class LoginComponent implements OnInit {
     await loading.dismiss()
  
     if(user){
-
       this.router.navigate(['/home']);
     } else {
-
-      console.log('entro al else')
       this.showAlert('Registration failed', 'please try again')
     }
 
