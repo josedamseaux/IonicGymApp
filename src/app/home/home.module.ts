@@ -10,14 +10,15 @@ import { HomePageRoutingModule } from './home-routing.module';
 
 
 @NgModule({
+    declarations: [HomePage, StatsComponent, TrainingHistoryComponent],
     imports: [
         NgChartsModule,
         ReactiveFormsModule,
         CommonModule,
         FormsModule,
         IonicModule,
-        HomePageRoutingModule
-    ],
-    declarations: [HomePage, StatsComponent, TrainingHistoryComponent],
+        HomePageRoutingModule,
+        
+    ]
 })
 export class HomePageModule {}

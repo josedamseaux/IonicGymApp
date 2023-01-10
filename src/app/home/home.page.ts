@@ -15,14 +15,13 @@ import { Auth } from '@angular/fire/auth';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit  {
+export class HomePage  {
 
-  private dataCollection: CollectionReference<DocumentData>;
 
-  constructor(private alertController: AlertController,
-    private authService: AuthService,
-    private router: Router,
-    private dataService: DataService,private auth: Auth,  private route: ActivatedRoute,
+  constructor(public alertController: AlertController,
+    public authService: AuthService,
+    public router: Router,
+    public dataService: DataService,public auth: Auth,  public route: ActivatedRoute,
   ) { }
 
   dataFinal: any[];
@@ -36,16 +35,12 @@ export class HomePage implements OnInit  {
   name;
 
   ngOnInit() {
-    // console.log(this.auth.currentUser.uid)
+
     this.dataService.getAll().subscribe(resp => {
       console.log(resp)
       this.dataFinal = resp
     })
 
-    // this.route.queryParams.subscribe(params => {
-    //   this.name = params['name'];
-    //   console.log(this.name)
-    // });
 
   }
 

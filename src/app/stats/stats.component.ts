@@ -1,17 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, OnInit } from '@angular/core';
 import { endOfWeek, formatDistance, startOfWeek } from 'date-fns';
 import { DataService } from '../services/data.service';
 import { format } from 'date-fns';
 import { ChartConfiguration, ChartDataset, ChartType } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Subscription } from 'rxjs';
+import { threadId } from 'worker_threads';
+import { parse } from 'path';
 
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
 })
-export class StatsComponent implements OnInit {
+export class StatsComponent implements OnInit{
 
   messageForLastDayTrained;
   lastDayTrained: boolean = false;
@@ -27,98 +28,64 @@ export class StatsComponent implements OnInit {
   currentWeek = [];
 
   firstDayOfWeek;
-  lastDayOfWeek;
+  lastDayOfWeek:number  = 0;
+
+  testNaN;
+  testNaN2;
+  testNaN3 = 0
   week = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-
-
-  // CHART ELEMENTS
-
-
-  // Intensity chart
-
-  // public intensityChartData: ChartConfiguration['data'] = {
-  //   datasets: [
-  //     {
-  //       data: [ 12,12,12,1,6,],
-  //       label: 'Series A',
-  //       backgroundColor: 'rgba(148,159,177,0.2)',
-  //       borderColor: 'rgba(148,159,177,1)',
-  //       pointBackgroundColor: 'rgba(148,159,177,1)',
-  //       pointBorderColor: '#fff',
-  //       pointHoverBackgroundColor: '#fff',
-  //       pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-  //       fill: 'origin',
-  //     }
-  //   ],
-  // };
-
-  // intensityChartLabels= []
-
-  // public lineChartOptions: ChartConfiguration['options'] = {
-  //   elements: {
-  //     line: {
-  //       tension: 0.5
-  //     }
-  //   },
-
-  //   plugins: {
-  //     legend: { display: false },
-
-  //   }
-  // };
-
-  // public lineChartType: ChartType = 'line';
-
-  // 
+  indexs = [];
 
 
   // Weeklychart doughnut
 
-  public doughnutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
-    animation: { animateScale: true },
-    cutout: 125,
+  doughnutChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    animation: {
+      duration: 0, // general animation time
+    },
     plugins: {
       datalabels: {
         font: { size: 18 },
         color: 'white',
         formatter: (val, ctx) => {
           // Grab the label for this value
+          let val2 = val;
           const label = ctx.chart.data.labels[ctx.dataIndex];
           // Put them together
-          return `${label}`;
+          return `${label} `;
         }
       },
       legend: {
         display: false,
       },
-
     }
   }
 
-  public pieChartLabels: any = [];
-  public doughnutChartData: ChartDataset[] = [{
+  doughnutChartLabels: any = [];
+  doughnutChartData: ChartDataset[] = [{
     data: [], backgroundColor: ["#62BEB6", "#0B9A8D", "#077368", "#034D44", "#002B24"]
-    , borderColor: 'rgb(60, 60, 68)', label: 'Times trained this week'
+    , label: 'Times trained this week'
   }];
-  public doughnutChartType: ChartType = 'doughnut';
-  public pieChartPlugins2 = [ChartDataLabels];
+  doughnutChartType: ChartType = 'doughnut';
+  doughnutChartPlugins2 = [ChartDataLabels];
+  doughnutChartLegend = false;
 
-  // Global cinfiguration 
+
+
   barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     scales: {
       x: {
         ticks: { color: 'white', font: { size: 15, style: 'italic' } }
       },
-      y: {
-        ticks: { color: 'white', font: { size: 15 }, precision: 0 }
-      },
+      y: { ticks: { color: 'white', font: { size: 15 }, precision: 0 } },
     },
     plugins: { legend: { display: true } }
   }
 
   // YearStats charts
-  // barThickness = 200
+
   lineChartDataForYear: ChartDataset[] = [{ data: [], backgroundColor: '#3fa39b', label: 'Trained total', barThickness: 100 }];
   lineChartLabelsForYear: any = [];
   lineChartLegendForYear = false;
@@ -128,50 +95,166 @@ export class StatsComponent implements OnInit {
   lineChartLabelsForMonth: any = [];
   lineChartLegendForMonth = false;
 
-  indexs = [];
 
-  constructor(private dataService: DataService) { }
+  constructor(public dataService: DataService) {
+    // this.currentWeek = this.dataService.getCurrentWeek()
+    // console.log(this.currentWeek)
+    // this.getStatsWeekTrained()
+    this.getStatsYearTrained()
 
-  subscription: Subscription
+    console.log(typeof this.firstDayOfWeek)
+  }
+
+
 
 
   ngOnInit() {
 
-    this.subscription = this.dataService.getAll().subscribe(resp => {
+    // this.currentWeek = this.dataService.getCurrentWeek()
+    
+    this.dataService.getAll().subscribe(resp=>{
+
+      this.getWeekTrained()
+      this.getStatsWeekTrained()
+      this.lastTimeTrained()
       this.getStatsYearTrained()
       this.getStatsMonthTrained()
-      this.lastTimeTrained()
-      this.getPieChartData()
-      this.getStatsWeekTrained()
-      // this.getIntensityChart()
+
     })
-    this.getMonth()
-    this.getCurrentWeek()
 
-
-
-
+    
   }
 
-  getMonth() {
-    let month = parseInt(format(new Date(), 'dd.MM.yyyy').substring(format(new Date(), 'dd.MM.yyyy').indexOf(".") + 1).slice(0, -5))
-    let monthToShow;
-    if (month == 1) { monthToShow = "january" }
-    if (month == 2) { monthToShow = "february" }
-    if (month == 3) { monthToShow = "march" }
-    if (month == 4) { monthToShow = "april" }
-    if (month == 5) { monthToShow = "may" }
-    if (month == 6) { monthToShow = "june" }
-    if (month == 7) { monthToShow = "july" }
-    if (month == 8) { monthToShow = "august" }
-    if (month == 9) { monthToShow = "september" }
-    if (month == 10) { monthToShow = "october" }
-    if (month == 11) { monthToShow = "november" }
-    if (month == 12) { monthToShow = "december" }
-    return monthToShow;
+
+  lastTimeTrained() {
+    console.log('dsfgd')
+    this.dataService.getAll().subscribe(resp => {
+      // we get the days trained
+      let result = resp.map(a => a.dayTrained);
+
+      let varForDay = parseInt(result[0].substring(0, result[0].indexOf(".")))
+      let varForMonth = parseInt(result[0].substring(result[0].indexOf(".") + 1).slice(0, -5))
+      let varForYear = parseInt(result[0].substring(result[0].length - 4))
+
+      // we get data from today, extract from string, convert to number so we can pass it to formatDistance
+      let todaysDate = format(new Date(), 'dd')
+      let varForToday = parseInt(todaysDate.substring(0, result[0].indexOf(".")))
+      let varForThisMonth = parseInt(format(new Date(), 'MM'))
+      let varForThisYear = parseInt(format(new Date(), 'dd.MM.yyyy'.substring(6)))
+
+      // compare variables for last training and today so we can get for example "last day oyou trained was 2 days ago" etc
+      var distanceFromDayTrainedToToday = formatDistance(new Date(varForThisYear, varForThisMonth, varForToday), new Date(varForYear, varForMonth, varForDay))
+
+      if (distanceFromDayTrainedToToday == "less than a minute") {
+        this.lastDayTrained = false;
+        this.trainedToday = true;
+        this.messageForLastDayTrained = 'You trained today. Congrats!'
+      } else if (distanceFromDayTrainedToToday == "1 day") {
+        this.messageForLastDayTrained = 'Last day you trained was yesterday.'
+        this.lastDayTrained = true;
+        this.trainedToday = false
+      } else {
+        this.messageForLastDayTrained = 'Last day you trained was ' + distanceFromDayTrainedToToday + ' ago'
+        this.lastDayTrained = true;
+        this.trainedToday = false
+      }
+    })
   }
+  
+  // isInteger(x) { return typeof x === "number" && isFinite(x) && Math.floor(x) === x; }
 
   getStatsYearTrained() {
+
+     // We get data from today's day, month, and year, converted to int
+     let todaysDate = format(new Date(), 'dd.MM.yyyy')
+
+     let test = format(new Date(), 'c')
+    console.log(test)
+
+     this.testNaN = todaysDate
+     this.testNaN2 = parseInt(todaysDate)
+     console.log(this.testNaN2)
+     let varForToday = parseInt(todaysDate)
+     let month = parseInt(todaysDate.substring(todaysDate.indexOf(".") + 1).slice(0, -5))
+     let varForThisYear = parseInt(todaysDate.substring(todaysDate.length - 4))
+    //  console.log(month)
+    //  // We get the start of the week
+    //  let startOfCurrentWeek = startOfWeek(new Date(varForThisYear, month - 1, varForToday), { weekStartsOn: 1 }).toString();
+     
+    // //  let firstDayOfWeekToInt = parseInt(startOfCurrentWeek.substring(0, startOfCurrentWeek.length - 52).slice(-2))
+    //  let firstDayOfWeek = startOfCurrentWeek.substring(0, startOfCurrentWeek.length - 52).slice(-2)
+    //  console.log(startOfCurrentWeek)
+    //  let firstDayOfWeekToInt = parseInt(firstDayOfWeek)
+    // //  this.firstDayOfWeek = firstDayOfWeekToInt;
+    //  // We get the end of the week
+    //  let LastDayOfCurrentWeek = endOfWeek(new Date(varForThisYear, month - 1, varForToday), { weekStartsOn: 1 }).toString()
+    //  let lastDayOfCurrentWeekToInt = parseInt(LastDayOfCurrentWeek.substring(0, LastDayOfCurrentWeek.length - 52).slice(-2))
+    //  this.lastDayOfWeek = lastDayOfCurrentWeekToInt;
+
+
+    let curr = new Date(); // get current date  
+    var first = curr.getDate() - curr.getDay() + 1; // First day is the  day of the month - the day of the week  
+    var last = first + 6; // last day is the first day + 6   
+    let firstday = new Date(curr.setDate(first)).toUTCString();   
+    let lastday = new Date(curr.setDate(curr.getDate()+6)).toUTCString();
+
+    let firstDayOfWeekInt = parseInt(firstday.substring(0, firstday.length - 22).slice(-2))
+    let lastDayOfWeekInt = parseInt(lastday.substring(0, lastday.length - 22).slice(-2))
+
+    this.firstDayOfWeek = firstDayOfWeekInt
+    this.lastDayOfWeek = lastDayOfWeekInt
+    console.log(lastDayOfWeekInt)
+
+ 
+     // we fill this array wich comntais numbers of day of the week to match days trained
+     let currentWeek = []
+     for (let i = firstDayOfWeekInt; i < lastDayOfWeekInt + 1; i++) {
+       currentWeek.push(i)
+      }
+      console.log(this.currentWeek)
+     
+      
+      if (firstDayOfWeekInt > lastDayOfWeekInt) {
+        console.log('this.currentWeek')
+        
+       let newArr = []
+       if (month == 4 || month == 6 || month == 9 || month == 11) {
+         let endOfMonthVariable = 30
+         for (let i = firstDayOfWeekInt; i < endOfMonthVariable + 1; i++) {
+           newArr.push(i)
+         }
+         for (let i = 1; i < lastDayOfWeekInt + 1; i++) {
+           newArr.push(i)
+         }
+         currentWeek.push(newArr)
+       }
+       if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+         let endOfMonthVariable = 31
+         console.log('aca e')
+         for (let i = firstDayOfWeekInt; i < endOfMonthVariable + 1; i++) {
+           newArr.push(i)
+         }
+         for (let i = 1; i < lastDayOfWeekInt + 1; i++) {
+           newArr.push(i)
+         }
+         currentWeek.push(newArr)
+       }
+       if (month == 2) {
+         let endOfMonthVariable = 28
+         for (let i = firstDayOfWeekInt; i < endOfMonthVariable; i++) {
+           newArr.push(i)
+         }
+         for (let i = 1; i < lastDayOfWeekInt + 1; i++) {
+           newArr.push(i)
+         }
+         currentWeek = newArr
+       }
+       this.currentWeek = currentWeek
+       console.log(this.currentWeek)
+     }
+
+     this.currentWeek = currentWeek
+
 
     let thisYear = parseInt(format(new Date(), 'dd.MM.yyyy').substring(6))
 
@@ -185,12 +268,11 @@ export class StatsComponent implements OnInit {
 
     this.dataService.getAll().subscribe(resp => {
       let result = resp.map(a => a.dayTrained);
-      // barThickness
+
       result.forEach(resp => {
 
         let varForYearTrained = parseInt(resp.substring(resp.length - 4))
         let varForLastYear = parseInt(format(new Date(), 'dd.MM.yyyy'.substring(6))) - 1
-        console.log(varForYearTrained)
 
         arrayForChart.push(varForYearTrained)
 
@@ -212,7 +294,6 @@ export class StatsComponent implements OnInit {
         dataArray = Object.values(count);
 
         this.lineChartDataForYear.forEach(respper => {
-
           respper.data = dataArray
         })
 
@@ -228,16 +309,15 @@ export class StatsComponent implements OnInit {
       })
     })
 
+
   }
 
   getStatsMonthTrained() {
 
-    let arrayForYear2022 = [];
-    let thisYear = parseInt(format(new Date(), 'dd.MM.yyyy').substring(6))
-
     // Look. I know this is horrible. But I really needed to speed up this one. This code needs to be improved by a senior
     //  I've created this ton of arrays asuming this app will last around 18 years, but since i wasnt able to
     // do it more eficently, I went hard coding. This is gonna get dark around here.
+    let arrayIfYearIs2022 = [];
     let arrayIfYearIs2023 = [];
     let arrayIfYearIs2024 = [];
     let arrayIfYearIs2025 = [];
@@ -268,6 +348,14 @@ export class StatsComponent implements OnInit {
         let varForYearTrained = parseInt(resp.substring(resp.length - 4))
 
         // Like I said, 18 year. Tons of ifs if the user have trained in 2024, 2025 and so on.
+
+
+        if (varForYearTrained == 2022) {
+          let monthOnAnotherYear = parseInt(resp.substring(resp.indexOf(".") + 1).slice(0, -5))
+          console.log(monthOnAnotherYear)
+          arrayIfYearIs2022.push(monthOnAnotherYear)
+          arrayIfYearIs2022 = arrayIfYearIs2022.sort(function (a, b) { return a - b; });
+        }
         if (varForYearTrained == 2023) {
           let monthOnAnotherYear = parseInt(resp.substring(resp.indexOf(".") + 1).slice(0, -5))
           console.log(monthOnAnotherYear)
@@ -407,14 +495,11 @@ export class StatsComponent implements OnInit {
           console.log(arrayIfYearIs2040)
         }
 
-        if (varForYearTrained == thisYear) {
-          arrayForYear2022.push(varForMonth)
-          arrayForYear2022 = arrayForYear2022.sort(function (a, b) { return a - b; });
-        }
+
 
         // In here we clean the arrays (they will be alot of duplicates when user traines more than 1 time in a month)
 
-        let uniqueChars2022 = [...new Set(arrayForYear2022)];
+        let uniqueChars2022 = [...new Set(arrayIfYearIs2022)];
         let uniqueChars2023 = [...new Set(arrayIfYearIs2023)];
         let uniqueChars2024 = [...new Set(arrayIfYearIs2024)];
         let uniqueChars2025 = [...new Set(arrayIfYearIs2025)];
@@ -463,8 +548,8 @@ export class StatsComponent implements OnInit {
 
         // 18 years so 18 fors  to count how many times a month trained. Each for for each year until 2040
         let countFor2022 = {};
-        for (let i = 0; i < arrayForYear2022.length; i++) {
-          countFor2022[arrayForYear2022[i]] = (countFor2022[arrayForYear2022[i]] || 0) + 1;
+        for (let i = 0; i < arrayIfYearIs2022.length; i++) {
+          countFor2022[arrayIfYearIs2022[i]] = (countFor2022[arrayIfYearIs2022[i]] || 0) + 1;
         }
 
         let countFor2023 = {};
@@ -586,83 +671,36 @@ export class StatsComponent implements OnInit {
           dataArrayForMonthsIn2034, dataArrayForMonthsIn2035, dataArrayForMonthsIn2036, dataArrayForMonthsIn2037,
           dataArrayForMonthsIn2038, dataArrayForMonthsIn2039, dataArrayForMonthsIn2040)
 
-
         this.lineChartDataForMonth.forEach(respper => {
+          if (finalArrayWithData.length > 8) {
+            respper.data = finalArrayWithData
+          }
           respper.data = finalArrayWithData
+          // console.log(finalArrayWithData)
         })
-        this.countOnMonth = finalArrayWithData[1];
+        this.countOnMonth = finalArrayWithData.slice(-1);
         this.countOnLastMonth = finalArrayWithData[finalArrayWithData.length - 2]
-
-
       })
     })
+
   }
 
   getStatsWeekTrained() {
 
-
-    let newrasrasrArr = []
-    let month = parseInt(format(new Date(), 'dd.MM.yyyy').substring(format(new Date(), 'dd.MM.yyyy').indexOf(".") + 1).slice(0, -5))
-
-    // we get the days trained in history
-    this.dataService.getAll().subscribe(element => {
-      // we cextract the property DayTrained and iterate over it
-      element.map(a => a.dayTrained).forEach(resp => {
-        // console.log(resp)
-        let varForMonth = parseInt(resp.substring(resp.indexOf(".") + 1).slice(0, -5))
-        // console.log(varForMonth)
-
-        // console.log(month)
-        // If to see if days (10, 11, 12, etc...) are for this month (you can getg multiple numbers from others months)
-        if (varForMonth == month) {
-          // we convert every day to Int
-          let respToNumber = parseInt(resp.substring(0, resp.length - 8).slice(-2))
-          // console.log(respToNumber)
-
-          // we push the results to array ( 5, 6, 7, etc)
-          newrasrasrArr.push(respToNumber)
-          let newArrayWithDaysTrained = []
-          // we iterate through the current week
-          this.currentWeek.forEach(resp => {
-
-            newrasrasrArr.forEach(resp3 => {
-              console.log(resp3)
-
-              // we compare items in arrays to determine if days trained match current week
-              // if they match, we push those matches into new array
-              if (resp === resp3) {
-                newArrayWithDaysTrained.push(resp)
-
-                newArrayWithDaysTrained.forEach(f => {
-                  this.indexs.push(this.currentWeek.findIndex(day => day == f))
-
-                })
-              }
-            })
-          })
-        }
-      })
-    })
-
-  }
-
-  getPieChartData() {
-
-    let musclesTrained = []
+   console.log('ececute')
     let thisMonth = parseInt(format(new Date(), 'dd.MM.yyyy').substring(format(new Date(), 'dd.MM.yyyy').indexOf(".") + 1).slice(0, -5))
-    // we get the days trained in history
+    let musclesTrained = []
 
     this.dataService.getAll().subscribe(element => {
       element.forEach(resp => {
-
+        console.log(resp.dayTrained)
         let varForMonth = parseInt(resp.dayTrained.substring(resp.dayTrained.indexOf(".") + 1).slice(0, -5))
         let varDay = parseInt(resp.dayTrained.substring(0, resp.dayTrained.indexOf(".")))
+        // If to see if days (10, 11, 12, etc...) are for this month (you can getg multiple numbers from others months)
 
         this.currentWeek.forEach(respper => {
-
-          if (varDay == respper && varForMonth === thisMonth) {
-            resp.musclesTrained.forEach(muscles => {
-              console.log(muscles)
+          if (varDay == respper && varForMonth == thisMonth) {
+            resp.musclesTrained.map(muscles => {
               let muscless = muscles.charAt(0).toUpperCase() + muscles.slice(1)
               musclesTrained.push(muscless)
             })
@@ -672,222 +710,54 @@ export class StatsComponent implements OnInit {
               count[musclesTrained[i]] = (count[musclesTrained[i]] || 0) + 1;
             }
 
-            let dataArrayForMusclesTrained: any = Object.values(count)
-
+            let dataArrayForMusclesTrained = []
+            dataArrayForMusclesTrained = Object.values(count)
             let uniqueCharsForLabel = [...new Set(musclesTrained)];
 
-            this.doughnutChartData.forEach(resp => {
+            this.doughnutChartData.map(resp => {
               resp.data = dataArrayForMusclesTrained
             })
 
-            this.pieChartLabels = uniqueCharsForLabel
+            this.doughnutChartLabels = uniqueCharsForLabel
           }
 
         })
       })
     })
-
-
   }
 
-  lastTimeTrained() {
-
-    this.dataService.getAll().subscribe(resp => {
-      // we get the days trained
-      let result = resp.map(a => a.dayTrained);
-
-      let varForDay = parseInt(result[0].substring(0, result[0].indexOf(".")))
-      let varForMonth = parseInt(result[0].substring(result[0].indexOf(".") + 1).slice(0, -5))
-      let varForYear = parseInt(result[0].substring(result[0].length - 4))
-
-      // we get data from today, extract from string, convert to number so we can pass it to formatDistance
-      let todaysDate = format(new Date(), 'dd')
-      let varForToday = parseInt(todaysDate.substring(0, result[0].indexOf(".")))
-      let varForThisMonth = parseInt(format(new Date(), 'MM'))
-      let varForThisYear = parseInt(format(new Date(), 'dd.MM.yyyy'.substring(6)))
-
-      // compare variables for last training and today so we can get for example "last day oyou trained was 2 days ago" etc
-      var distanceFromDayTrainedToToday = formatDistance(new Date(varForThisYear, varForThisMonth, varForToday), new Date(varForYear, varForMonth, varForDay))
-
-      if (distanceFromDayTrainedToToday == "less than a minute") {
-        this.lastDayTrained = false;
-        this.trainedToday = true;
-        this.messageForLastDayTrained = 'You trained today. Congrats!'
-      } else if (distanceFromDayTrainedToToday == "1 day") {
-        this.messageForLastDayTrained = 'Last day you trained was yesterday.'
-        this.lastDayTrained = true;
-        this.trainedToday = false
-      } else {
-        this.messageForLastDayTrained = 'Last day you trained was ' + distanceFromDayTrainedToToday + ' ago'
-        this.lastDayTrained = true;
-        this.trainedToday = false
-      }
-    })
+  intersect(a, b){
+    const setB = new Set(b);
+    return a.filter(el => setB.has(el));
   }
 
-  getWeekTrained(year, month, day) {
-    // we get first day of week trained
-    let firstDayOfWeek = startOfWeek(new Date(year, month - 1, day), { weekStartsOn: 1 }).toString()
-    let firstDayOfWeekToInt = parseInt(firstDayOfWeek.substring(0, firstDayOfWeek.length - 52).slice(-2))
+  getWeekTrained(){
+    let thisMonth = parseInt(format(new Date(), 'dd.MM.yyyy').substring(format(new Date(), 'dd.MM.yyyy').indexOf(".") + 1).slice(0, -5))
+    let newrasrasrArr = []
 
-    // we get last day of week trained
-    let getLastDayOfWeek = endOfWeek(new Date(year, month - 1, day), { weekStartsOn: 1 }).toString()
-    let getLastDayOfWeekToInt = parseInt(getLastDayOfWeek.substring(0, getLastDayOfWeek.length - 52).slice(-2))
+    this.dataService.getAll().subscribe(element => {
+      element.map(resp => {
+        let varForMonth = parseInt(resp.dayTrained.substring(resp.dayTrained.indexOf(".") + 1).slice(0, -5))
+        // If to see if days (10, 11, 12, etc...) are for this month (you can getg multiple numbers from others months)
+        if (varForMonth == thisMonth) {
+          // we convert every day to Int
+          let respToNumber = parseInt(resp.dayTrained.substring(0, resp.dayTrained.length - 8).slice(-2))
+          // we push the results to array ( 5, 6, 7, etc)
+          newrasrasrArr.push(respToNumber)
+          // we iterate through the current week
+        }
 
-    // this array will contain week trained
-    let weekTrained = new Array()
-    for (let i = firstDayOfWeekToInt; i < getLastDayOfWeekToInt + 1; i++) {
-      weekTrained.push(i)
-    }
-    // this if will check if we have a situation in wich the first day of the week is greater than last day of week
-    // for example week starts on monday 28 and ends on sunday 4th
-    let newArr = []
-    if (firstDayOfWeekToInt > getLastDayOfWeekToInt) {
-      if (month == 4 || month == 6 || month == 9 || month == 11) {
-        let endOfMonthVariable = 30
-        for (let i = firstDayOfWeekToInt; i < endOfMonthVariable + 1; i++) {
-          newArr.push(i)
-        }
-        for (let i = 1; i < getLastDayOfWeekToInt + 1; i++) {
-          newArr.push(i)
-        }
-        weekTrained.push(newArr)
-      }
-      if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-        let endOfMonthVariable = 31
-        for (let i = firstDayOfWeekToInt; i < endOfMonthVariable + 1; i++) {
-          newArr.push(i)
-        }
-        for (let i = 1; i < getLastDayOfWeekToInt + 1; i++) {
-          newArr.push(i)
-        }
-        weekTrained.push(newArr)
-
-      }
-      if (month == 2) {
-        let endOfMonthVariable = 28
-        for (let i = firstDayOfWeekToInt; i < endOfMonthVariable; i++) {
-          newArr.push(i)
-        }
-        for (let i = 1; i < getLastDayOfWeekToInt + 1; i++) {
-          newArr.push(i)
-        }
-        weekTrained.push(newArr)
-      }
-
-    }
-    return weekTrained;
-
-  }
-
-  getCurrentWeek() {
-    // We get data from today's day, month, and year, converted to int
-    let todaysDate = format(new Date(), 'dd.MM.yyyy')
-    let varForToday = parseInt(todaysDate.substring(0, todaysDate.indexOf(".")))
-    let month = parseInt(todaysDate.substring(todaysDate.indexOf(".") + 1).slice(0, -5))
-    let varForThisYear = parseInt(todaysDate.substring(todaysDate.length - 4))
-
-    // We get the start of the week
-    let startOfCurrentWeek = startOfWeek(new Date(varForThisYear, month - 1, varForToday), { weekStartsOn: 1 }).toString()
-    let firstDayOfWeekToInt = parseInt(startOfCurrentWeek.substring(0, startOfCurrentWeek.length - 52).slice(-2))
-    this.firstDayOfWeek = firstDayOfWeekToInt;
-
-    // We get the end of the week
-    let LastDayOfCurrentWeek = endOfWeek(new Date(varForThisYear, month - 1, varForToday), { weekStartsOn: 1 }).toString()
-    let lastDayOfCurrentWeekToInt = parseInt(LastDayOfCurrentWeek.substring(0, LastDayOfCurrentWeek.length - 52).slice(-2))
-    this.lastDayOfWeek = lastDayOfCurrentWeekToInt;
-
-    // we fill this array wich comntais numbers of day of the week to match days trained
-    let currentWeek = []
-    for (let i = firstDayOfWeekToInt; i < lastDayOfCurrentWeekToInt + 1; i++) {
-      currentWeek.push(i)
-    }
-
-    if (firstDayOfWeekToInt > lastDayOfCurrentWeekToInt) {
-      let newArr = []
-      if (month == 4 || month == 6 || month == 9 || month == 11) {
-        let endOfMonthVariable = 30
-        for (let i = firstDayOfWeekToInt; i < endOfMonthVariable + 1; i++) {
-          newArr.push(i)
-        }
-        for (let i = 1; i < lastDayOfCurrentWeekToInt + 1; i++) {
-          newArr.push(i)
-        }
-        currentWeek.push(newArr)
-      }
-      if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-        let endOfMonthVariable = 31
-        for (let i = firstDayOfWeekToInt; i < endOfMonthVariable + 1; i++) {
-          newArr.push(i)
-        }
-        for (let i = 1; i < lastDayOfCurrentWeekToInt + 1; i++) {
-          newArr.push(i)
-        }
-        currentWeek.push(newArr)
-      }
-      if (month == 2) {
-        let endOfMonthVariable = 28
-        for (let i = firstDayOfWeekToInt; i < endOfMonthVariable; i++) {
-          newArr.push(i)
-        }
-        for (let i = 1; i < lastDayOfCurrentWeekToInt + 1; i++) {
-          newArr.push(i)
-        }
-        currentWeek = newArr
-      }
-    }
-
-    currentWeek.forEach(r => {
-      r.forEach(f => {
-        this.currentWeek.push(f)
+ 
+        
+      })
+      let intersect = this.intersect(newrasrasrArr, this.currentWeek)
+      console.log(intersect)
+      intersect.map(f => {
+      console.log(this.indexs)
+      this.indexs.push(this.currentWeek.findIndex(day => day == f))
       })
     })
 
   }
-
-  // getIntensityChart(){
-
-  //   let arrayForIntensity = [];
-  //   let arrayForIntensityMonthly = [];
-
-  //   this.dataService.getAll().subscribe(resp=>{
-  //     resp.forEach(element =>{
-  //       let varForMonth = parseInt(element.dayTrained.substring(element.dayTrained.indexOf(".") + 1).slice(0, -5))
-  //       arrayForIntensityMonthly.push(varForMonth)
-  //       arrayForIntensityMonthly = arrayForIntensityMonthly.sort(function (a, b) { return a - b; });
-  //       let uniqueCharsForIntensityMonthly = [...new Set(arrayForIntensityMonthly)];
-
-  //       let arrayWithNamesForLabel = []
-  //       uniqueCharsForIntensityMonthly.forEach(element => {
-  //         if (element == 1) { element = "January", arrayWithNamesForLabel.push(element) }
-  //         if (element == 2) { element = "February", arrayWithNamesForLabel.push(element) }
-  //         if (element == 3) { element = "March", arrayWithNamesForLabel.push(element) }
-  //         if (element == 4) { element = "April", arrayWithNamesForLabel.push(element) }
-  //         if (element == 5) { element = "May", arrayWithNamesForLabel.push(element) }
-  //         if (element == 6) { element = "June", arrayWithNamesForLabel.push(element) }
-  //         if (element == 7) { element = "July", arrayWithNamesForLabel.push(element) }
-  //         if (element == 8) { element = "August", arrayWithNamesForLabel.push(element) }
-  //         if (element == 9) { element = "September", arrayWithNamesForLabel.push(element) }
-  //         if (element == 10) { element = "October", arrayWithNamesForLabel.push(element) }
-  //         if (element == 11) { element = "November", arrayWithNamesForLabel.push(element) }
-  //         if (element == 12) { element = "December", arrayWithNamesForLabel.push(element) }
-  //       })
-  //       // console.log(arrayWithNamesForLabel)
-  //       this.intensityChartData.labels = arrayWithNamesForLabel
-
-
-  //       arrayForIntensity.push(element.Intensity)
-  //       // element.Intensity
-  //       // console.log(arrayForIntensity)
-  //     })
-  //   })
-
-
-  // }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
-
 
 }
