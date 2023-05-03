@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <div class="d-flex justify-content-between">
+      <ion-title>
+        Entrenapp
+      </ion-title>
+      <ion-button type="button" class="logoutButton" (click)="logout()">
+        <span style="color:white">
+          LOGOUT
+        </span>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-button type="button" class="button-ready" expand="full" (click)="firstButtonForTrained()">ADD
+    TRAINING</ion-button>
+  <div *ngFor="let data of dataFinal; trackBy: TrackByNgFor">
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title>{{data.dayOfWeekTrained}}. {{data.dayTrained}}</ion-card-title>
+        <ion-card-subtitle class="musclesWorkedBlocked">{{data.musclesTrained.join(', ')}}</ion-card-subtitle>
+        <p class="intenseBlock">{{data.Intensity}}</p>
+      </ion-card-header>
+      <div class="button justify-content-center">
+        <ion-button class="update" type="button" expand="block" (click)="click(data)">edit</ion-button>
+        <ion-button class="delete" type="button" expand="block" (click)="delete(data)">delete</ion-button>
+      </div>
+    </ion-card>
+  </div>
+  <ion-button type="button" class="loadMoreTrainingsButton" routerLink="/training-history">TRAINING HISTORY</ion-button>
+
+  <br>
+
+  <div>
+    <app-stats [flagForErasingLastElementOfChartJS]="flagForErasingLastElementOfChartJS"></app-stats>
+  </div>

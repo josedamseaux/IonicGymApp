@@ -1,0 +1,123 @@
+<div class="statsComponent">
+
+  <p *ngIf="lastDayTrained">{{messageForLastDayTrained}} </p>
+  <p *ngIf="lastDayTrained == false">{{messageForLastDayTrained}} </p>
+
+  <div>
+
+    <h1 class="titlesStats"><i>Week stats</i></h1>
+    <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between" *ngFor="let weekit of week; let i = index;">
+        <div class="boxxed text-center">
+          {{weekit}}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between" *ngFor="let weeker of currentWeek; let i = index;">
+        <div class="boxxed2 text-center" [ngStyle]="{'background-color' : indexs.includes(i) ? '#3fa39b' : '#3c3c44'}">
+          {{weeker}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="weekStats">
+    <div class="d-flex justify-content-center" *ngIf="spinnerVisible">
+      <div class="spinner-border" role="status">
+        <span class="sr-only" id="loading"></span>
+      </div>
+    </div>
+
+    <ng-container *ngIf="show == false"> You havent trained this week </ng-container>
+
+    <div *ngIf="show">
+      <div class="chart-wrapper">
+        <canvas baseChart class="chart" [datasets]="doughnutChartData" [type]="doughnutChartType"
+          [labels]="doughnutChartLabels" [options]="doughnutChartOptions" [plugins]="doughnutChartPlugins2">
+        </canvas>
+      </div>
+      Chart for muscles trained this week
+      <br>
+    </div>
+
+    <br>
+
+    <div class="monthStats">
+
+      <h1 class="titlesStats"><i>Month stats</i></h1>
+
+      <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between" *ngFor="let weekit of week; let i = index;">
+          <div class="boxxed text-center">
+            {{weekit}}
+          </div>
+        </div>
+      </div>
+      <div class="calendar">
+
+        <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" *ngFor="let weeker of week1; let i = index;">
+            <div class="boxxed2 text-center"
+              [ngStyle]="{'background-color' : indexer1.includes(i) ? '#3fa39b' : '#3c3c44'}">
+              {{weeker}}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" *ngFor="let weeker of week2; let i = index;">
+            <div class="boxxed2 text-center"
+              [ngStyle]="{'background-color' : indexer2.includes(i) ? '#3fa39b' : '#3c3c44'}">
+              {{weeker}}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" *ngFor="let weeker of week3; let i = index;">
+            <div class="boxxed2 text-center"
+              [ngStyle]="{'background-color' : indexer3.includes(i) ? '#3fa39b' : '#3c3c44'}">
+              {{weeker}}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" *ngFor="let weeker of week4; let i = index;">
+            <div class="boxxed2 text-center"
+              [ngStyle]="{'background-color' : indexer4.includes(i) ? '#3fa39b' : '#3c3c44'}">
+              {{weeker}}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" *ngFor="let weeker of week5; let i = index;">
+            <div class="boxxed2 text-center"
+              [ngStyle]="{'background-color' : indexer5.includes(i) ? '#3fa39b' : '#3c3c44'}">
+              {{weeker}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center" *ngIf="spinnerVisible">
+        <div class="spinner-border" role="status">
+          <span class="sr-only" id="loading"></span>
+        </div>
+      </div>
+      <br>
+      <span>This month you have trained {{countOnMonth}} times</span>
+      <br>
+      <span>Last month you trained {{countOnLastMonth}} times</span>
+      <br><br>
+      <div class="chart-wrapper">
+        <canvas baseChart class="chart" [datasets]="barChartDataForMonth" [labels]="barChartLabelsForMonth"
+          [legend]="false" [options]="barChartOptions">
+        </canvas>
+      </div>
+    </div>
+    <br><br>
+  </div>
+
+</div>

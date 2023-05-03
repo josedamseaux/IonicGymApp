@@ -1,0 +1,69 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <div class="d-flex justify-content-between">
+      <ion-title>
+        Entrenapp
+      </ion-title>
+      <ion-button class="logoutButton" (click)="logout()">
+        <span style="color:white">
+          LOGOUT
+        </span>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Blank</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-button class="button-ready" expand="full" routerLink="/home">BACK TO MAIN</ion-button>
+  <div>
+    TRAINING HISTORY:
+  </div>
+
+
+  <div class="container">
+    <h1 class="titlesStats"><i>Year stats</i></h1>
+    <div class="spinner-border" role="status" *ngIf="spinnerVisible">
+      <span class="sr-only" id="loading"></span>
+    </div>
+  
+    <div class="chart-wrapper">
+      <canvas baseChart class="chart"
+      [datasets]="barChartDataForYear" 
+      [labels]="barChartLabelsForYear" 
+      [legend]="false"
+      [options]="barChartOptions">
+      </canvas>
+    </div>
+  </div>
+  
+
+
+  <div *ngFor="let item of arrayForYearsTrained; let i = index">
+    <ion-card-header class="test" id="test2" (click)="getData(item)">
+      <ion-card-title>{{item}}</ion-card-title>
+    </ion-card-header>
+  </div>
+
+  <div *ngFor="let data of dataByMonth">
+    <ion-card color="light">
+      <ion-card-header class="titleForMonth">
+        {{data.month}}
+        <ion-card color="light">
+          <ion-card-header *ngFor="let data of data.values">
+            <ion-card-title>{{data.dayOfWeekTrained}}. {{data.dayTrained}}</ion-card-title>
+            <ion-card-subtitle class="musclesWorkedBlocked">{{data.musclesTrained.join(', ')}}</ion-card-subtitle>
+            <p class="intenseBlock">{{data.Intensity}}</p>
+            <div class="button justify-content-center">
+              <ion-button class="update" expand="block" (click)="click(data)">edit</ion-button>
+              <ion-button class="delete" expand="block" (click)="delete(data.id)">delete</ion-button>
+            </div>
+          </ion-card-header>
+        </ion-card>
+      </ion-card-header>
+    </ion-card>
+  </div>

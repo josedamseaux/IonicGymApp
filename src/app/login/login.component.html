@@ -1,0 +1,23 @@
+<ion-header>
+<ion-toolbar>
+  <ion-title>Yuca app</ion-title>
+</ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="credentials" (ngSubmit)="login()">
+
+    <ion-item fill="solid" class="ion-margin-bottom">
+      <ion-input type="email" placeholder="email" formControlName="email"></ion-input>
+      <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors">Email invalid, check please</ion-note>
+    </ion-item> 
+
+    <ion-item fill="solid" class="ion-margin-bottom">
+      <ion-input type="password" placeholder="password" formControlName="password"></ion-input>
+      <ion-note slot="error" *ngIf="(email.dirty || email.touched) && email.errors">Password needs to be at least 6 digits</ion-note>
+    </ion-item>
+    
+    <ion-button type="submit" [disabled]="!credentials.valid">Login</ion-button>
+    <ion-button type="button" (click)="register()">Create account</ion-button>
+  </form>
+</ion-content>

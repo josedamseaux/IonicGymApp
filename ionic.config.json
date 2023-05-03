@@ -1,0 +1,8 @@
+{
+  "name": "Yucapp",
+  "integrations": {
+    "capacitor": {},
+    "cordova": {}
+  },
+  "type": "angular"
+}
